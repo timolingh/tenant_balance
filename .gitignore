@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.env
+.venv/
+tenant_balance.db
+app/uploads/*
+!app/uploads/.gitkeep
+.pytest_cache/

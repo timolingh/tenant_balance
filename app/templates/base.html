@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tenant Balance MVP</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/dashboard">Tenant Balances</a>
+    <div class="navbar-nav">
+      <a class="nav-link" href="/dashboard">Dashboard</a>
+      <a class="nav-link" href="/tenants">Tenants</a>
+      <a class="nav-link" href="/import">Import CSV</a>
+    </div>
+    <form hx-post="/rent/post-monthly" hx-target="#rent-post-result" hx-swap="innerHTML" class="d-flex ms-auto">
+      <button class="btn btn-warning btn-sm" type="submit">Run Rent Posting</button>
+    </form>
+  </div>
+</nav>
+<main class="container-fluid px-4">
+  <div id="rent-post-result"></div>
+  {% block content %}{% endblock %}
+</main>
+</body>
+</html>

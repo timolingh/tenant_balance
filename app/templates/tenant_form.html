@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% block content %}
+<h1>New Tenant</h1><form method="post" action="/tenants" class="row g-3">
+{% for name,label,type in [('full_name','Full Name','text'),('street_address','Street Address','text'),('unit','Unit','text'),('city','City','text'),('state','State','text'),('zip','Zip','text'),('bedroom_count','Bedrooms','number'),('bathroom_count','Bathrooms','number'),('living_area_sqft','Living Area Sqft','number'),('default_rent_amount','Default Rent Amount','number'),('rent_due_day','Rent Due Day','number')] %}
+<div class="col-md-4"><label class="form-label">{{ label }}</label><input class="form-control" name="{{ name }}" type="{{ type }}" {% if name in ['full_name','street_address','default_rent_amount'] %}required{% endif %} {% if name=='state' %}value="CA"{% endif %} {% if name=='rent_due_day' %}value="1"{% endif %}></div>
+{% endfor %}
+<div class="col-md-4"><label class="form-label">Status</label><select class="form-select" name="status"><option>active</option><option>inactive</option></select></div>
+<div class="col-12"><button class="btn btn-primary">Create Tenant</button></div></form>{% endblock %}

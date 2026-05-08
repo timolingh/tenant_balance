@@ -1,0 +1,14 @@
+{% extends "base.html" %}{% block content %}
+<h1>Dashboard</h1><p class="text-muted">Operator: {{ operator }}</p>
+<div class="row g-3 mb-4">
+  <div class="col"><div class="card"><div class="card-body"><div class="text-muted">Total Tenants</div><div class="h3">{{ tenants|length }}</div></div></div></div>
+  <div class="col"><div class="card"><div class="card-body"><div class="text-muted">Active</div><div class="h3">{{ active_count }}</div></div></div></div>
+  <div class="col"><div class="card"><div class="card-body"><div class="text-muted">Inactive</div><div class="h3">{{ inactive_count }}</div></div></div></div>
+  <div class="col"><div class="card"><div class="card-body"><div class="text-muted">Outstanding</div><div class="h3">${{ '%.2f'|format(total_balance) }}</div></div></div></div>
+  <div class="col"><div class="card"><div class="card-body"><div class="text-muted">Positive Balance</div><div class="h3">{{ overdue_count }}</div></div></div></div>
+</div>
+<h2 class="h4">Recent Activity</h2>
+<table class="table table-sm table-striped"><thead><tr><th>Date</th><th>Tenant</th><th>Type</th><th>Category/Method</th><th>Amount</th><th>Operator</th></tr></thead><tbody>
+{% for e in recent %}<tr><td>{{ e.effective_date }}</td><td><a href="/tenants/{{ e.tenant_id }}">#{{ e.tenant_id }}</a></td><td>{{ e.entry_type }}</td><td>{{ e.charge_category or e.payment_method or '' }}</td><td>${{ '%.2f'|format(e.amount) }}</td><td>{{ e.created_by_operator }}</td></tr>{% endfor %}
+</tbody></table>
+{% endblock %}
