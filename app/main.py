@@ -78,7 +78,7 @@ def tenants(request: Request, q: str = "", status: str = "", positive_balance: s
 
 @app.get("/tenants/new", response_class=HTMLResponse)
 def new_tenant(request: Request):
-    return templates.TemplateResponse("tenant_form.html", {"request": request, "tenant": None})
+    return templates.TemplateResponse("tenant_form.html", {"request": request, "tenant": None, "mode": "create"})
 
 @app.post("/tenants")
 def create_tenant(
@@ -89,6 +89,70 @@ def create_tenant(
     tenant = Tenant(full_name=full_name, street_address=street_address, unit=unit, city=city, state=state, zip=zip, bedroom_count=bedroom_count,
                     bathroom_count=bathroom_count, living_area_sqft=living_area_sqft, default_rent_amount=default_rent_amount, rent_due_day=rent_due_day, status=status)
     db.add(tenant)
+    db.commit()
+    return RedirectResponse(f"/tenants/{tenant.id}", status_code=303)
+
+@app.get("/tenants/{tenant_id}/edit", response_class=HTMLResponse)
+def edit_tenant(request: Request, tenant_id: int, db: Session = Depends(get_db)):
+    tenant = db.get(Tenant, tenant_id)
+    if not tenant:
+        raise HTTPException(404)
+    return templates.TemplateResponse("tenant_form.html", {"request": request, "tenant": tenant, "mode": "edit"})
+
+@app.post("/tenants/{tenant_id}")
+def update_tenant(
+    tenant_id: int,
+    full_name: str = Form(...),
+    additional_resident_names: str = Form(""),
+    street_address: str = Form(...),
+    unit: str = Form(""),
+    city: str = Form(""),
+    state: str = Form("CA"),
+    zip: str = Form(""),
+    bedroom_count: str = Form(""),
+    bathroom_count: str = Form(""),
+    living_area_sqft: str = Form(""),
+    default_rent_amount: Decimal = Form(...),
+    rent_due_day: int = Form(1),
+    payment_payable_to: str = Form(""),
+    payment_contact_name: str = Form(""),
+    payment_address: str = Form(""),
+    payment_city: str = Form(""),
+    payment_zip: str = Form(""),
+    payment_phone: str = Form(""),
+    payment_days: str = Form(""),
+    payment_hours: str = Form(""),
+    notes: str = Form(""),
+    status: str = Form("active"),
+    db: Session = Depends(get_db),
+):
+    tenant = db.get(Tenant, tenant_id)
+    if not tenant:
+        raise HTTPException(404)
+
+    tenant.full_name = full_name.strip()
+    tenant.additional_resident_names = additional_resident_names.strip() or None
+    tenant.street_address = street_address.strip()
+    tenant.unit = unit.strip() or None
+    tenant.city = city.strip()
+    tenant.state = state.strip() or "CA"
+    tenant.zip = zip.strip()
+    tenant.bedroom_count = int(bedroom_count) if bedroom_count.strip() else None
+    tenant.bathroom_count = Decimal(bathroom_count) if bathroom_count.strip() else None
+    tenant.living_area_sqft = int(living_area_sqft) if living_area_sqft.strip() else None
+    tenant.default_rent_amount = default_rent_amount
+    tenant.rent_due_day = rent_due_day
+    tenant.payment_payable_to = payment_payable_to.strip() or None
+    tenant.payment_contact_name = payment_contact_name.strip() or None
+    tenant.payment_address = payment_address.strip() or None
+    tenant.payment_city = payment_city.strip() or None
+    tenant.payment_zip = payment_zip.strip() or None
+    tenant.payment_phone = payment_phone.strip() or None
+    tenant.payment_days = payment_days.strip() or None
+    tenant.payment_hours = payment_hours.strip() or None
+    tenant.notes = notes.strip() or None
+    tenant.status = status
+
     db.commit()
     return RedirectResponse(f"/tenants/{tenant.id}", status_code=303)
 

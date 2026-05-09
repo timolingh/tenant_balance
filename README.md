@@ -29,6 +29,8 @@ A desktop-first FastAPI + Jinja + HTMX application for tracking tenant balances 
 - `GET /tenants/new` - Form to create a new tenant
 - `POST /tenants` - Create a new tenant
 - `GET /tenants/{tenant_id}` - View tenant details, ledger, and attachments
+- `GET /tenants/{tenant_id}/edit` - Form to edit tenant details
+- `POST /tenants/{tenant_id}` - Update tenant details
 - `POST /tenants/{tenant_id}/charges` - Add a charge to a tenant's ledger
 - `POST /tenants/{tenant_id}/payments` - Add a payment to a tenant's ledger
 - `POST /ledger/{entry_id}/reverse` - Reverse a ledger entry
@@ -37,6 +39,65 @@ A desktop-first FastAPI + Jinja + HTMX application for tracking tenant balances 
 - `POST /rent/post-monthly` - Post monthly rent charges for all active tenants
 - `POST /tenants/{tenant_id}/attachments` - Upload an attachment for a tenant
 - `GET /attachments/{attachment_id}` - Download an attachment file
+
+## Example Payloads (Add / Update Tenant)
+
+Tenant create and update endpoints expect `application/x-www-form-urlencoded` form data.
+
+Create tenant (`POST /tenants`):
+
+```bash
+curl -X POST http://localhost:8000/tenants \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  --data-urlencode "full_name=Jane Doe" \
+  --data-urlencode "street_address=123 Main St" \
+  --data-urlencode "unit=4B" \
+  --data-urlencode "city=Los Angeles" \
+  --data-urlencode "state=CA" \
+  --data-urlencode "zip=90001" \
+  --data-urlencode "bedroom_count=2" \
+  --data-urlencode "bathroom_count=1.5" \
+  --data-urlencode "living_area_sqft=950" \
+  --data-urlencode "default_rent_amount=2450.00" \
+  --data-urlencode "rent_due_day=1" \
+  --data-urlencode "status=active"
+```
+
+Update tenant (`POST /tenants/{tenant_id}`):
+
+```bash
+curl -X POST http://localhost:8000/tenants/1 \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  --data-urlencode "full_name=Jane Doe" \
+  --data-urlencode "additional_resident_names=John Doe" \
+  --data-urlencode "street_address=123 Main St" \
+  --data-urlencode "unit=4B" \
+  --data-urlencode "city=Los Angeles" \
+  --data-urlencode "state=CA" \
+  --data-urlencode "zip=90001" \
+  --data-urlencode "bedroom_count=2" \
+  --data-urlencode "bathroom_count=1.5" \
+  --data-urlencode "living_area_sqft=950" \
+  --data-urlencode "default_rent_amount=2550.00" \
+  --data-urlencode "rent_due_day=5" \
+  --data-urlencode "payment_payable_to=Acme Properties" \
+  --data-urlencode "payment_contact_name=Leasing Office" \
+  --data-urlencode "payment_address=500 Property Ln" \
+  --data-urlencode "payment_city=Los Angeles" \
+  --data-urlencode "payment_zip=90002" \
+  --data-urlencode "payment_phone=555-111-2222" \
+  --data-urlencode "payment_days=Mon-Fri" \
+  --data-urlencode "payment_hours=9am-5pm" \
+  --data-urlencode "notes=Updated lease terms" \
+  --data-urlencode "status=active"
+```
+
+Required fields:
+
+```text
+Create: full_name, street_address, default_rent_amount
+Update: full_name, street_address, default_rent_amount
+```
 
 ## Extract Into a Git-Managed Directory
 

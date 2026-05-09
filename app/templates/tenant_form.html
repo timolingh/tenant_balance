@@ -1,7 +1,34 @@
 {% extends "base.html" %}{% block content %}
-<h1>New Tenant</h1><form method="post" action="/tenants" class="row g-3">
-{% for name,label,type in [('full_name','Full Name','text'),('street_address','Street Address','text'),('unit','Unit','text'),('city','City','text'),('state','State','text'),('zip','Zip','text'),('bedroom_count','Bedrooms','number'),('bathroom_count','Bathrooms','number'),('living_area_sqft','Living Area Sqft','number'),('default_rent_amount','Default Rent Amount','number'),('rent_due_day','Rent Due Day','number')] %}
-<div class="col-md-4"><label class="form-label">{{ label }}</label><input class="form-control" name="{{ name }}" type="{{ type }}" {% if name in ['full_name','street_address','default_rent_amount'] %}required{% endif %} {% if name=='state' %}value="CA"{% endif %} {% if name=='rent_due_day' %}value="1"{% endif %}></div>
+<h1>{% if mode == "edit" %}Edit Tenant{% else %}New Tenant{% endif %}</h1>
+<form method="post" action="{% if mode == 'edit' %}/tenants/{{ tenant.id }}{% else %}/tenants{% endif %}" class="row g-3">
+{% for name,label,type in [('full_name','Full Name','text'),('additional_resident_names','Additional Resident Names','text'),('street_address','Street Address','text'),('unit','Unit','text'),('city','City','text'),('state','State','text'),('zip','Zip','text'),('bedroom_count','Bedrooms','number'),('bathroom_count','Bathrooms','number'),('living_area_sqft','Living Area Sqft','number'),('default_rent_amount','Default Rent Amount','number'),('rent_due_day','Rent Due Day','number'),('payment_payable_to','Payment Payable To','text'),('payment_contact_name','Payment Contact Name','text'),('payment_address','Payment Address','text'),('payment_city','Payment City','text'),('payment_zip','Payment Zip','text'),('payment_phone','Payment Phone','text'),('payment_days','Payment Days','text'),('payment_hours','Payment Hours','text')] %}
+<div class="col-md-4">
+  <label class="form-label">{{ label }}</label>
+  <input
+    class="form-control"
+    name="{{ name }}"
+    type="{{ type }}"
+    {% if name in ['full_name','street_address','default_rent_amount'] %}required{% endif %}
+    {% if name == 'bathroom_count' %}step="0.1"{% endif %}
+    {% if name == 'default_rent_amount' %}step="0.01"{% endif %}
+    value="{% if tenant %}{{ tenant|attr(name) if tenant|attr(name) is not none else '' }}{% elif name == 'state' %}CA{% elif name == 'rent_due_day' %}1{% else %}{% endif %}"
+  >
+</div>
 {% endfor %}
-<div class="col-md-4"><label class="form-label">Status</label><select class="form-select" name="status"><option>active</option><option>inactive</option></select></div>
-<div class="col-12"><button class="btn btn-primary">Create Tenant</button></div></form>{% endblock %}
+<div class="col-md-8">
+  <label class="form-label">Notes</label>
+  <textarea class="form-control" name="notes" rows="4">{% if tenant and tenant.notes %}{{ tenant.notes }}{% endif %}</textarea>
+</div>
+<div class="col-md-4">
+  <label class="form-label">Status</label>
+  <select class="form-select" name="status">
+    <option value="active" {% if not tenant or tenant.status == 'active' %}selected{% endif %}>active</option>
+    <option value="inactive" {% if tenant and tenant.status == 'inactive' %}selected{% endif %}>inactive</option>
+  </select>
+</div>
+<div class="col-12 d-flex gap-2">
+  <button class="btn btn-primary">{% if mode == "edit" %}Save Changes{% else %}Create Tenant{% endif %}</button>
+  {% if mode == "edit" %}<a class="btn btn-outline-secondary" href="/tenants/{{ tenant.id }}">Cancel</a>{% else %}<a class="btn btn-outline-secondary" href="/tenants">Cancel</a>{% endif %}
+</div>
+</form>
+{% endblock %}
