@@ -98,11 +98,21 @@ def tenant_detail(request: Request, tenant_id: int, db: Session = Depends(get_db
     if not tenant:
         raise HTTPException(404)
     decorate_tenant(db, tenant)
+    ordered_tenant_ids = [t.id for t in db.query(Tenant).order_by(Tenant.full_name, Tenant.id).all()]
+    previous_tenant_id = None
+    next_tenant_id = None
+    if tenant_id in ordered_tenant_ids:
+        current_index = ordered_tenant_ids.index(tenant_id)
+        if current_index > 0:
+            previous_tenant_id = ordered_tenant_ids[current_index - 1]
+        if current_index < len(ordered_tenant_ids) - 1:
+            next_tenant_id = ordered_tenant_ids[current_index + 1]
     ledger = db.query(LedgerEntry).filter(LedgerEntry.tenant_id == tenant_id).order_by(LedgerEntry.effective_date.desc(), LedgerEntry.id.desc()).all()
     payments = [e for e in ledger if e.entry_type == "payment"]
     return templates.TemplateResponse("tenant_detail.html", {
         "request": request, "tenant": tenant, "ledger": ledger, "payments": payments, "attachments": tenant.attachments,
-        "categories": [c.value for c in ChargeCategory], "methods": [m.value for m in PaymentMethod], "operator": get_operator(request)
+        "categories": [c.value for c in ChargeCategory], "methods": [m.value for m in PaymentMethod], "operator": get_operator(request),
+        "previous_tenant_id": previous_tenant_id, "next_tenant_id": next_tenant_id
     })
 
 @app.post("/tenants/{tenant_id}/charges")
